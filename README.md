@@ -9,6 +9,7 @@ Ani
 - [实验环境](#实验环境)
 - [实验过程](#实验过程)
     - [从零开始搭建基础虚拟机环境](#从零开始搭建基础虚拟机环境)
+    - [布置攻防训练环境](#把攻防训练环境从仓库中拉取到虚拟机系统中)
 - [参考资料](#参考资料)
 
 ---
@@ -180,22 +181,22 @@ $ sudo usermod -a -G docker ${USER}
 
 重新登录 `shell` 生效
 
-切换到 root 用户权限下执行
+切换到 root 用户权限下执行：
 
-更换 `docker` 镜像源：
+更换 `docker` 镜像源，使用中科大 `Docker Hub` 镜像源：
 
 ```bash
 cat <<EOF > /etc/docker/daemon.json
 {
-  "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/","https://registry.docker-cn.com",
-    "http://hub-mirror.c.163.com",
-    "https://docker.mirrors.ustc.edu.cn",
-    "https://cr.console.aliyun.com",
-    "https://mirror.ccs.tencentyun.com"]
+  "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"]
 }
 EOF
 ```
 重启 `docker` 服务使配置生效
+
+```bash
+systemctl docker restart
+```
 
 ![jingxiang](img/jignxiang.png)
 
@@ -205,12 +206,41 @@ EOF
 docker pull vulfocus/vulfocus：latest
 ```
 
-![]()
+发现超级超级慢！查询资料发现由于访问原始站点的网络带宽等条件的限制，导致 `Docker Hub`,` Google Container Registry (gcr.io)` 与 `Quay Container Registry (quay.io)` 的镜像缓存处于基本不可用的状态，因此科大镜像站的各容器镜像服务仅限校内使用。当然也可能是我家的网实在是太慢了...
+
+于是更换成以下源：
+
+```bash
+https://hub-mirror.c.163.com/
+https://3cnn2icv.mirror.aliyuncs.com
+```
+
+![yuan](img/yuan.png)
+
+拉取成功：
+
+![vulfocus](img/vulfocus.png)
+
+发现一件很搞笑的事情...配置了免密登录但是忘记这回事，前面都直接在虚拟机上操作
+
+运行老师提供的脚本，并选择其推荐的支持对外访问 `vulfocus-web` 的 `ip`，这里推荐的是 `host-only` 网卡所分配到的地址
+
+```bash
+bash start.sh
+```
+
+![bash](img/bash.png)
+
+这样 `docker` 镜像就可以跑起来了，在宿主机访问这个地址即可进入到 `vulfocus` 的页面：
+
+![vulfocusweb](img/vulfocusweb.png)
 
 ### 参考资料
 
-[网络安全2021综合实验](https://www.bilibili.com/video/BV1p3411x7da?p=4&spm_id_from=pageDriver&vd_source=c77148c25420ef65a1b98a765a8e118c)
+[网络安全 2021 综合实验](https://www.bilibili.com/video/BV1p3411x7da?p=4&spm_id_from=pageDriver&vd_source=c77148c25420ef65a1b98a765a8e118c)
 
-[VMware双网卡配置](https://blog.csdn.net/qiu_zhi_liao/article/details/81268073)
+[VMware 双网卡配置](https://blog.csdn.net/qiu_zhi_liao/article/details/81268073)
 
 [本地免密登录](https://blog.csdn.net/Weary_PJ/article/details/104561720)
+
+[Docker Hub 源使用帮助](https://mirrors.ustc.edu.cn/help/dockerhub.html)
