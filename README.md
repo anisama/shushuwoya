@@ -3,7 +3,6 @@
 Ani
 ---
 
-[TOC]
 - [负责工作](#负责工作)
 - [实验目的](#实验目的)
 - [实验环境](#实验环境)
@@ -16,7 +15,9 @@ Ani
 
 ### 负责工作
 
-
+- 作为红队完成对漏洞的存在性检验以及实现漏洞利用
+- 作为蓝队完成漏洞利用的缓解
+- 实现自动化脚本
 
 ### 实验目的
 
@@ -234,6 +235,22 @@ bash start.sh
 这样 `docker` 镜像就可以跑起来了，在宿主机访问这个地址即可进入到 `vulfocus` 的页面：
 
 ![vulfocusweb](img/vulfocusweb.png)
+
+### 测试部署本地的 Vulfocus
+
+登录后，选择 `镜像管理 -- 镜像管理 -- 一键同步` ，获取 `Vulfocus` 提供的镜像：
+
+![tongbu](img/tongbu.png)
+
+搜索需要的镜像并下载
+
+![log4shell](img/log4shell.png)
+
+下载完成后可在首页启动并测试环境
+
+![xiazai](img/xiazai.png)
+
+![qidong](img/qidong.png)
 
 ### 参考资料
 
