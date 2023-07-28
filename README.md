@@ -7,8 +7,11 @@ Ani
 - [实验目的](#实验目的)
 - [实验环境](#实验环境)
 - [实验过程](#实验过程)
+    - [学习相关课程和资料](#学习相关课程和资料)
     - [从零开始搭建基础虚拟机环境](#从零开始搭建基础虚拟机环境)
     - [布置攻防训练环境](#把攻防训练环境从仓库中拉取到虚拟机系统中)
+    - [测试部署本地的 Vulfocus](#测试部署本地的-vulfocus)
+    - [自定义场景拓扑镜像](#自定义场景拓扑镜像)
 - [参考资料](#参考资料)
 
 ---
@@ -196,7 +199,8 @@ EOF
 重启 `docker` 服务使配置生效
 
 ```bash
-systemctl docker restart
+systemctl daemon-reload
+systemctl restart docker.service
 ```
 
 ![jingxiang](img/jignxiang.png)
@@ -238,7 +242,7 @@ bash start.sh
 
 ### 测试部署本地的 Vulfocus
 
-登录后，选择 `镜像管理 -- 镜像管理 -- 一键同步` ，获取 `Vulfocus` 提供的镜像：
+使用账号密码（这里均为 `admin`）登录后，选择 `镜像管理 -- 镜像管理 -- 一键同步` ，获取 `Vulfocus` 提供的镜像：
 
 ![tongbu](img/tongbu.png)
 
@@ -252,12 +256,86 @@ bash start.sh
 
 ![qidong](img/qidong.png)
 
+### 漏洞的存在性检验 （CVE-2021-44228）
+
+#### 漏洞介绍
+
+`log4j2` 是 `apache` 下的 `java` 应用常见的开源日志库，是一个就 `Java` 的日志记录工具。在 `log4j` 框架的基础上进行了改进，并引入了丰富的特性，可以控制日志信息输送的目的地为控制台、文件、`GUI` 组建等，被应用于业务系统开发，用于记录程序输入输出日志信息
+
+#### 找到靶标的访问入口
+
+修改镜像启动时间，启动靶机并访问 `http://192.168.254.128:50175/`
+
+![qidong](img/qidong1.png)
+
+![wangzhi](img/wangzhi.png)
+
+点击 `？？？？` 有：
+
+
+
+#### 检测漏洞存在性
+
+查看容器相关信息
+
+```bash
+docker ps
+```
+
+![ps](img/ps.png)
+
+得容器名为 `adoring_bhabha`
+
+进入容器找到 `jar` 文件
+
+```bash
+docker exec -it adoring_bhabha bash
+```
+
+![jar](img/jar.png)
+
+将 `jar` 文件复制到虚拟机上
+
+```bash
+sudo docker cp adoring_bhabha:/demo/demo.jar ./
+```
+![](img/)
+
+在虚拟机中下载反编译软件 ``
+
+用反编译软件打开 `jar` 文件，可以看到存在漏洞代码
+
+```html
+
+```
+
+![daima](img/daima.png)
+
+#### 验证漏洞可利用性
+
+
+
+#### 漏洞利用效果
+
+
+
 ### 参考资料
 
 [网络安全 2021 综合实验](https://www.bilibili.com/video/BV1p3411x7da?p=4&spm_id_from=pageDriver&vd_source=c77148c25420ef65a1b98a765a8e118c)
+
+[课件](https://c4pr1c3.github.io/cuc-ns-ppt/vuls-awd.md.v4.html)
 
 [VMware 双网卡配置](https://blog.csdn.net/qiu_zhi_liao/article/details/81268073)
 
 [本地免密登录](https://blog.csdn.net/Weary_PJ/article/details/104561720)
 
 [Docker Hub 源使用帮助](https://mirrors.ustc.edu.cn/help/dockerhub.html)
+
+[log4j2 官网介绍](https://logging.apache.org/log4j/2.x/index.html)
+
+[Docker-docke 服务启动报错：Job for docker.service failed because the control process exited with error code.](https://blog.csdn.net/MinggeQingchun/article/details/123344229)
+
+[docker 启动报错：Failed to start Docker Application Container Engine](https://blog.csdn.net/u010918487/article/details/106925282)
+
+---
+
