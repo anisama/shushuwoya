@@ -2,10 +2,10 @@
 
 ---
 
-[TOC]
 - [项目](#2023-夏季学期实践项目进程)
     - [项目内容](#项目内容)
     - [实践目标](#实践目标)
+    - [课程配套资料](#课程配套资料)
 
 ---
 
@@ -30,3 +30,11 @@
 - 蓝队实现对漏洞的持续检验和威胁识别，并做出报告
 - 蓝队完成对漏洞的缓解和修复
 - 实现自动化脚本
+
+### 课程配套资料
+
+[课程 Wiki](https://c4pr1c3.github.io/cuc-wiki/cp/2023/index.html)
+
+[课程视频](https://www.bilibili.com/video/BV1p3411x7da?p=19&vd_source=640d60cfe2696fffb930fdf01e0aba1d)
+
+[课程课件](https://c4pr1c3.github.io/cuc-ns-ppt/vuls-awd.md.v4.html#/title-slide)
