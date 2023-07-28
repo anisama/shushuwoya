@@ -272,7 +272,7 @@ bash start.sh
 
 点击 `？？？？` 有：
 
-
+![????]()
 
 #### 检测漏洞存在性
 
@@ -304,10 +304,6 @@ sudo docker cp adoring_bhabha:/demo/demo.jar ./
 在虚拟机中下载反编译软件 ``
 
 用反编译软件打开 `jar` 文件，可以看到存在漏洞代码
-
-```html
-
-```
 
 ![daima](img/daima.png)
 
