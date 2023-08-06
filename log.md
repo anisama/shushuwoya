@@ -296,3 +296,29 @@ docker cp 容器名：路径+文件 保存路径
 8.6
 
 补充流量检验
+
+`git push` 遇到的问题
+
+![bug8](img/bug8.png)
+
+参考解决下面的方案执行了 `git pull --rebase origin Ani`
+
+- [git错误 error: failed to push some refs to 'https://github.com/...](https://blog.csdn.net/dietime1943/article/details/85682688)
+
+于是出现了
+
+![bug9](img/bug9.png)
+
+再参考
+
+- [git pull报错Pulling is not possible because you have unmerged files](https://blog.csdn.net/wy01272454/article/details/72846365)
+
+执行了 `git add -u` 和 `git commit -m "" `后，有出现了个报错
+
+![bug10](img/bug10.png)
+
+按照提示，我执行了 `git rebase --continue`，显示成功，此时查看仓库状态
+
+![then](img/then.png)
+
+然后就可以正常的 `push` 了
